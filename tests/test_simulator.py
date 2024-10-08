@@ -1,4 +1,6 @@
 import pytest
+pytest.capture_stdio = False 
+
 from src.pump_config import PumpConfig
 from src.insulin_pump import InsulinPump
 from src.patient import Patient

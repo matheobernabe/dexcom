@@ -13,12 +13,14 @@ Ce projet simule une pompe à insuline pour gérer la glycémie d'un patient dia
 
 ```bash
 pip install -r requirements.txt
+pip install pytest 
+
 
 ## Pour simuler une journée
 python src/main.py
 
 ## Pour les tests fonctionnel 
-pytest tests/test_simulator.py
+pytest -v -s tests/test_simulator.py
 
 ## Pour les tests unitaires 
 pytest tests/tests_unitaires.py
