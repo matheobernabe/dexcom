@@ -18,7 +18,7 @@ pip install -r requirements.txt
 python src/main.py
 
 ## Pour les tests fonctionnel 
-pytest tests/   
+pytest tests/test_simulator.py
 
 ## Pour les tests unitaires 
 pytest tests/tests_unitaires.py
