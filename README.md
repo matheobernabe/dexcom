@@ -1,5 +1,10 @@
 # Simulateur de Pompe à Insuline
 
+## Membres du groupe
+Mathéo Bernabé
+Valentin Gaillard
+Tom Serayet
+
 ## Description
 
 Ce projet simule une pompe à insuline pour gérer la glycémie d'un patient diabétique.
@@ -14,7 +19,6 @@ Ce projet simule une pompe à insuline pour gérer la glycémie d'un patient dia
 ```bash
 pip install -r requirements.txt
 pip install pytest 
-
 
 ## Pour simuler une journée
 python src/main.py
