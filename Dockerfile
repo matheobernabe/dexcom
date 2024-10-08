@@ -12,7 +12,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copier le reste du code source dans le conteneur
 COPY src/ ./src
-COPY test/ ./test
+COPY tests/ ./tests
 
 # Exposer le port (si tu prévois une interface utilisateur plus tard, sinon tu peux l'ignorer)
 # EXPOSE 5000
