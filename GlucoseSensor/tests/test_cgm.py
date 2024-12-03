@@ -10,8 +10,10 @@ from cgm.kafka_producer import GlucoseKafkaProducer
 
 class TestGlucoseAnalyzer:
     @pytest.fixture
-    def kafka_mock(self):
-        return Mock(spec=GlucoseKafkaProducer)
+    def kafka_mock(mocker):
+        mock = mocker.Mock(spec=GlucoseKafkaProducer)
+        mock.ALERT_TOPIC = 'glucose_alerts'
+        return mock
 
     @pytest.fixture
     def analyzer(self, kafka_mock):
@@ -51,17 +53,17 @@ class TestSensorMonitor:
 
     @pytest.fixture
     def monitor(self, kafka_mock):
-        with patch('src.cgm.sensor_monitor.datetime') as mock_datetime:
+        with patch('cgm.sensor_monitor.datetime') as mock_datetime:
             mock_datetime.now.return_value = datetime(2024, 1, 1)
             return SensorMonitor(kafka_mock)
 
     def test_sensor_lifetime_valid(self, monitor, kafka_mock):
-        with patch('src.cgm.sensor_monitor.datetime') as mock_datetime:
+        with patch('cgm.sensor_monitor.datetime') as mock_datetime:
             mock_datetime.now.return_value = datetime(2024, 1, 5)
             assert monitor.check_sensor_lifetime() is True
 
     def test_sensor_lifetime_expired(self, monitor, kafka_mock):
-        with patch('src.cgm.sensor_monitor.datetime') as mock_datetime:
+        with patch('cgm.sensor_monitor.datetime') as mock_datetime:
             mock_datetime.now.return_value = datetime(2024, 1, 12)
             assert monitor.check_sensor_lifetime() is False
             kafka_mock.send_message.assert_called_once()

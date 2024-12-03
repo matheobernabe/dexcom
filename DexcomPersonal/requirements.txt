@@ -1,1 +1,27 @@
 flask
+
+python
+kafka-python
+SQLite3              
+
+# Data processing & visualization
+pandas
+matplotlib
+
+# API & Cloud sync
+requests
+
+# Testing
+pytest
+pytest-cov
+pytest-mock
+
+# Code quality & formatting
+pylint
+black
+
+# Time handling
+python-dateutil
+
+# Development tools
+ipython    # Pour le développement interactif
