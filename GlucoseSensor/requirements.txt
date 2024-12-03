@@ -1,1 +1,6 @@
 flask
+kafka-python
+pytest
+pytest-cov
+python-dateutil
+pylint
