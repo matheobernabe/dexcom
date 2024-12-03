@@ -4,7 +4,7 @@ import json
 class GlucoseKafkaProducer:
     def __init__(self):
         self.producer = KafkaProducer(
-            bootstrap_servers=['localhost:9092'],
+            bootstrap_servers=['kafka:9092'],
             value_serializer=lambda x: json.dumps(x).encode('utf-8')
         )
         
