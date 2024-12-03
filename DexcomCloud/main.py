@@ -1,4 +1,4 @@
-from publisher import Publisher
+from DataProcessor.publisher import Publisher
 import requests
 import threading
 import time
