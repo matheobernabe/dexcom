@@ -32,6 +32,7 @@ services:
       - "6003:6000"
     depends_on:
       - dexcom_db
+      - kafka
     networks:
       - dexcom_network
     environment:
@@ -40,14 +41,19 @@ services:
       DB_NAME: dexcom
       DB_USER: postgres
       DB_PASSWORD: password
+      KAFKA_BROKER: kafka:9092
 
   dexcom_follow:
     build: ./DexcomFollow
     container_name: dexcom_follow
     ports:
       - "6004:6000"
+    depends_on:
+      - kafka
     networks:
       - dexcom_network
+    environment:
+      KAFKA_BROKER: kafka:9092
 
   dexcom_clarity:
     build: ./DexcomClarity
@@ -56,6 +62,7 @@ services:
       - "6005:6000"
     depends_on:
       - clarity_db
+      - kafka
     networks:
       - dexcom_network
     environment:
@@ -64,6 +71,7 @@ services:
       DB_NAME: clarity
       DB_USER: postgres
       DB_PASSWORD: password
+      KAFKA_BROKER: kafka:9092
 
   dexcom_db:
     image: postgres:14
@@ -88,6 +96,32 @@ services:
       POSTGRES_DB: clarity
     volumes:
       - clarity_db_data:/var/lib/postgresql/data
+    networks:
+      - dexcom_network
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+    networks:
+      - dexcom_network
+
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    container_name: kafka
+    ports:
+      - "9092:9092"
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
     networks:
       - dexcom_network
 

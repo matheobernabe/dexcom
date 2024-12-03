@@ -1,7 +1,11 @@
 FROM python:3.9-slim
+
+# Installer les dépendances nécessaires
 WORKDIR /app
-COPY requirements.txt .
+COPY . /app
+
+# Installer les dépendances Python
 RUN pip install --no-cache-dir -r requirements.txt
-COPY . .
-EXPOSE 6003
-CMD ["python", "app.py"]
+
+# Définir le point d'entrée de l'application
+CMD ["python", "main.py"]

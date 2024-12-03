@@ -1,1 +1,5 @@
 flask
+confluent-kafka
+requests
+schedule
+eventlet
