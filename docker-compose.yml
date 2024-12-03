@@ -1,8 +1,100 @@
-version: '3'
+version: '3.8'
+
 services:
-  simulator:
-    build: .
-    container_name: insulin-pump-simulator
-    command: python src/main.py
+  glucose_sensor:
+    build: ./GlucoseSensor
+    container_name: glucose_sensor
+    ports:
+      - "5000:5000"
+    networks:
+      - dexcom_network
+
+  insulin_pump:
+    build: ./InsulinPump
+    container_name: insulin_pump
+    ports:
+      - "5001:5000"
+    networks:
+      - dexcom_network
+
+  dexcom_personal:
+    build: ./DexcomPersonal
+    container_name: dexcom_personal
+    ports:
+      - "5002:5000"
+    networks:
+      - dexcom_network
+
+  dexcom_cloud:
+    build: ./DexcomCloud
+    container_name: dexcom_cloud
+    ports:
+      - "5003:5000"
+    depends_on:
+      - dexcom_db
+    networks:
+      - dexcom_network
+    environment:
+      DB_HOST: dexcom_db
+      DB_PORT: 5432
+      DB_NAME: dexcom
+      DB_USER: postgres
+      DB_PASSWORD: password
+
+  dexcom_follow:
+    build: ./DexcomFollow
+    container_name: dexcom_follow
+    ports:
+      - "5004:5000"
+    networks:
+      - dexcom_network
+
+  dexcom_clarity:
+    build: ./DexcomClarity
+    container_name: dexcom_clarity
+    ports:
+      - "5005:5000"
+    depends_on:
+      - clarity_db
+    networks:
+      - dexcom_network
+    environment:
+      DB_HOST: clarity_db
+      DB_PORT: 5432
+      DB_NAME: clarity
+      DB_USER: postgres
+      DB_PASSWORD: password
+
+  dexcom_db:
+    image: postgres:14
+    container_name: dexcom_db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: dexcom
     volumes:
-      - .:/app
+      - dexcom_db_data:/var/lib/postgresql/data
+    networks:
+      - dexcom_network
+
+  clarity_db:
+    image: postgres:14
+    container_name: clarity_db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: clarity
+    volumes:
+      - clarity_db_data:/var/lib/postgresql/data
+    networks:
+      - dexcom_network
+
+volumes:
+  dexcom_db_data:
+  clarity_db_data:
+
+networks:
+  dexcom_network:
+    driver: bridge
