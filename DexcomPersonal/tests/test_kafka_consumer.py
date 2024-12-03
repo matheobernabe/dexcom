@@ -14,8 +14,11 @@ class TestGlucoseConsumer:
 
     @pytest.fixture
     def consumer(self, mock_data_manager, mock_alert_manager):
-        with patch('kafka.KafkaConsumer'):
-            return GlucoseConsumer(mock_data_manager, mock_alert_manager)
+        mock_kafka_consumer = Mock()
+        with patch('kafka.KafkaConsumer', return_value=mock_kafka_consumer):
+            consumer = GlucoseConsumer(mock_data_manager, mock_alert_manager)
+            consumer.consumer = mock_kafka_consumer
+            return consumer
 
     def test_handle_glucose_measurement(self, consumer, mock_data_manager):
         data = {
