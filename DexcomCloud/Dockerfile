@@ -2,6 +2,7 @@ FROM python:3.9-slim
 
 # Installer les dépendances nécessaires
 WORKDIR /DexcomCloud
+ENV PYTHONPATH=/DexcomCloud
 COPY . /DexcomCloud
 
 # Installer les dépendances Python

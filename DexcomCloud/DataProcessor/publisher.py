@@ -3,7 +3,7 @@ from confluent_kafka import Producer
 import logging
 
 class Publisher:
-    def __init__(self, kafka_server="localhost:9092", topic="glucose_data", host="0.0.0.0", port=6000):
+    def __init__(self, kafka_server="kafka:9092", topic="glucose_data", host="0.0.0.0", port=6000):
         # Initialisation Flask
         self.app = Flask(__name__)
         self.host = host

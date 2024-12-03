@@ -1,8 +1,6 @@
 flask
 
-python
 kafka-python
-SQLite3              
 
 # Data processing & visualization
 pandas
