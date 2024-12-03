@@ -8,4 +8,4 @@ def get_glucose():
     return jsonify({"sensorId": "1234", "glucoseLevel": 110, "status": "OK"})
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=6000)

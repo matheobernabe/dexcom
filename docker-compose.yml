@@ -5,7 +5,7 @@ services:
     build: ./GlucoseSensor
     container_name: glucose_sensor
     ports:
-      - "5000:5000"
+      - "6000:6000"
     networks:
       - dexcom_network
 
@@ -13,7 +13,7 @@ services:
     build: ./InsulinPump
     container_name: insulin_pump
     ports:
-      - "5001:5000"
+      - "6001:6000"
     networks:
       - dexcom_network
 
@@ -21,7 +21,7 @@ services:
     build: ./DexcomPersonal
     container_name: dexcom_personal
     ports:
-      - "5002:5000"
+      - "6002:6000"
     networks:
       - dexcom_network
 
@@ -29,14 +29,14 @@ services:
     build: ./DexcomCloud
     container_name: dexcom_cloud
     ports:
-      - "5003:5000"
+      - "6003:6000"
     depends_on:
       - dexcom_db
     networks:
       - dexcom_network
     environment:
       DB_HOST: dexcom_db
-      DB_PORT: 5432
+      DB_PORT: 6432
       DB_NAME: dexcom
       DB_USER: postgres
       DB_PASSWORD: password
@@ -45,7 +45,7 @@ services:
     build: ./DexcomFollow
     container_name: dexcom_follow
     ports:
-      - "5004:5000"
+      - "6004:6000"
     networks:
       - dexcom_network
 
@@ -53,14 +53,14 @@ services:
     build: ./DexcomClarity
     container_name: dexcom_clarity
     ports:
-      - "5005:5000"
+      - "6005:6000"
     depends_on:
       - clarity_db
     networks:
       - dexcom_network
     environment:
       DB_HOST: clarity_db
-      DB_PORT: 5432
+      DB_PORT: 6432
       DB_NAME: clarity
       DB_USER: postgres
       DB_PASSWORD: password
