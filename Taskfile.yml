@@ -1,0 +1,32 @@
+version: '3'
+
+tasks:
+  start:
+    cmds:
+      - ./scripts/start.sh
+    desc: "Démarrer les services"
+
+  stop:
+    cmds:
+      - ./scripts/stop.sh
+    desc: "Arrêter les services"
+
+  build:
+    cmds:
+      - ./scripts/build.sh GlucoseSensor
+    desc: "Reconstruire le service GlucoseSensor"
+
+  cleanup:
+    cmds:
+      - ./scripts/cleanup.sh
+    desc: "Nettoyer Docker"
+
+  logs:
+    cmds:
+      - ./scripts/logs.sh
+    desc: "Afficher les logs"
+
+  tests:
+    cmds:
+      - ./scripts/run_tests.sh
+    desc: "Exécuter les tests"

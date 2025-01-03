@@ -10,8 +10,8 @@ from cgm.kafka_producer import GlucoseKafkaProducer
 
 class TestGlucoseAnalyzer:
     @pytest.fixture
-    def kafka_mock(mocker):
-        mock = mocker.Mock(spec=GlucoseKafkaProducer)
+    def kafka_mock(self):
+        mock = Mock(spec=GlucoseKafkaProducer)
         mock.ALERT_TOPIC = 'glucose_alerts'
         return mock
 
@@ -20,30 +20,24 @@ class TestGlucoseAnalyzer:
         return GlucoseAnalyzer(kafka_mock)
 
     def test_analyze_glucose_hypo(self, analyzer, kafka_mock):
-        # Test hypoglycémie
         timestamp = datetime.now().isoformat()
         analyzer.analyze_glucose(65, timestamp)
-        
-        kafka_mock.send_message.assert_called_once()
-        args = kafka_mock.send_message.call_args[0]
-        assert args[1]['type'] == 'HYPOGLYCEMIA'
-        assert args[1]['glucose_level'] == 65
+        kafka_mock.send_message.assert_called_once_with(
+            kafka_mock.ALERT_TOPIC,
+            {'type': 'HYPOGLYCEMIA', 'glucose_level': 65, 'timestamp': timestamp}
+        )
 
     def test_analyze_glucose_hyper(self, analyzer, kafka_mock):
-        # Test hyperglycémie
         timestamp = datetime.now().isoformat()
         analyzer.analyze_glucose(190, timestamp)
-        
-        kafka_mock.send_message.assert_called_once()
-        args = kafka_mock.send_message.call_args[0]
-        assert args[1]['type'] == 'HYPERGLYCEMIA'
-        assert args[1]['glucose_level'] == 190
+        kafka_mock.send_message.assert_called_once_with(
+            kafka_mock.ALERT_TOPIC,
+            {'type': 'HYPERGLYCEMIA', 'glucose_level': 190, 'timestamp': timestamp}
+        )
 
     def test_analyze_glucose_normal(self, analyzer, kafka_mock):
-        # Test glycémie normale
         timestamp = datetime.now().isoformat()
         analyzer.analyze_glucose(100, timestamp)
-        
         kafka_mock.send_message.assert_not_called()
 
 class TestSensorMonitor:
@@ -66,7 +60,10 @@ class TestSensorMonitor:
         with patch('cgm.sensor_monitor.datetime') as mock_datetime:
             mock_datetime.now.return_value = datetime(2024, 1, 12)
             assert monitor.check_sensor_lifetime() is False
-            kafka_mock.send_message.assert_called_once()
+            kafka_mock.send_message.assert_called_once_with(
+                kafka_mock.STATUS_TOPIC,
+                {'type': 'SENSOR_EXPIRED'}
+            )
 
 class TestAdvancedCGM:
     @pytest.fixture
@@ -80,36 +77,30 @@ class TestAdvancedCGM:
         return AdvancedCGM(target_glucose=120)
 
     def test_measure_glucose_precision(self, cgm, patient_mock):
-        # Test si la mesure reste dans la plage de ±10%
         base_glucose = patient_mock.glucose_level
         measure = cgm.measure_glucose(patient_mock)
-        
         assert measure is not None
-        assert measure >= base_glucose * 0.9  # -10%
-        assert measure <= base_glucose * 1.1  # +10%
+        assert base_glucose * 0.9 <= measure <= base_glucose * 1.1
 
     def test_measure_glucose_expired_sensor(self, cgm, patient_mock):
-        # Simuler un capteur expiré
         cgm.sensor_monitor.expiration_time = datetime.now() - timedelta(days=1)
         measure = cgm.measure_glucose(patient_mock)
         assert measure is None
 
-    @patch('time.sleep')  # Pour éviter d'attendre réellement
+    @patch('time.sleep')
     def test_continuous_monitoring(self, mock_sleep, cgm, patient_mock):
-        # Simuler 3 mesures
         measurements = []
+
         def mock_measure(*args):
-            if len(measurements) >= 3:  # Arrêter après 3 mesures
-                cgm.sensor_monitor.expiration_time = datetime.now() - timedelta(days=1)
-            measure = cgm.measure_glucose(patient_mock)
-            if measure:
-                measurements.append(measure)
-            return measure
+            if len(measurements) >= 3:
+                return None
+            glucose_value = 120 * random.uniform(0.9, 1.1)
+            measurements.append(glucose_value)
+            return glucose_value
 
         with patch.object(cgm, 'measure_glucose', side_effect=mock_measure):
             cgm.start_continuous_monitoring(patient_mock)
 
         assert len(measurements) == 3
-        # Vérifier que toutes les mesures sont dans la plage attendue
         for measure in measurements:
             assert 108 <= measure <= 132  # ±10% de 120

@@ -4,3 +4,4 @@ pytest
 pytest-cov
 python-dateutil
 pylint
+pytest-mock
