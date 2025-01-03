@@ -38,7 +38,7 @@ def start_scheduler(publisher):
 # Point d'entrée principal
 if __name__ == "__main__":
     # Initialiser le publisher avec Kafka
-    publisher = Publisher(kafka_server="localhost:9092", topic="glucose_data")
+    publisher = Publisher(kafka_server="kafka:9092", topic="glucose_data")
 
     # Lancer le scheduler dans un thread séparé
     scheduler_thread = threading.Thread(target=start_scheduler, args=(publisher,))
