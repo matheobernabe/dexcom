@@ -22,17 +22,33 @@ class TestGlucoseAnalyzer:
     def test_analyze_glucose_hypo(self, analyzer, kafka_mock):
         timestamp = datetime.now().isoformat()
         analyzer.analyze_glucose(65, timestamp)
+
         kafka_mock.send_message.assert_called_once_with(
             kafka_mock.ALERT_TOPIC,
-            {'type': 'HYPOGLYCEMIA', 'glucose_level': 65, 'timestamp': timestamp}
+            {
+                'timestamp': timestamp,
+                'type': 'HYPOGLYCEMIA',
+                'level': 'URGENT',
+                'glucose_level': 65,
+                'threshold': 70,
+                'message': 'Hypoglycémie détectée'
+            }
         )
 
     def test_analyze_glucose_hyper(self, analyzer, kafka_mock):
         timestamp = datetime.now().isoformat()
         analyzer.analyze_glucose(190, timestamp)
+
         kafka_mock.send_message.assert_called_once_with(
             kafka_mock.ALERT_TOPIC,
-            {'type': 'HYPERGLYCEMIA', 'glucose_level': 190, 'timestamp': timestamp}
+            {
+                'timestamp': timestamp,
+                'type': 'HYPERGLYCEMIA',
+                'level': 'WARNING',
+                'glucose_level': 190,
+                'threshold': 180,
+                'message': 'Hyperglycémie détectée'
+            }
         )
 
     def test_analyze_glucose_normal(self, analyzer, kafka_mock):
@@ -43,7 +59,9 @@ class TestGlucoseAnalyzer:
 class TestSensorMonitor:
     @pytest.fixture
     def kafka_mock(self):
-        return Mock(spec=GlucoseKafkaProducer)
+        mock = Mock(spec=GlucoseKafkaProducer)
+        mock.STATUS_TOPIC = 'sensor_status'  # Ajouter l'attribut STATUS_TOPIC
+        return mock
 
     @pytest.fixture
     def monitor(self, kafka_mock):
@@ -61,8 +79,10 @@ class TestSensorMonitor:
             mock_datetime.now.return_value = datetime(2024, 1, 12)
             assert monitor.check_sensor_lifetime() is False
             kafka_mock.send_message.assert_called_once_with(
-                kafka_mock.STATUS_TOPIC,
-                {'type': 'SENSOR_EXPIRED'}
+                kafka_mock.STATUS_TOPIC,  # Utiliser l'attribut simulé
+                {'timestamp': '2024-01-12T00:00:00',
+                 'status': 'EXPIRED',
+                 'message': 'Capteur expiré - Remplacement nécessaire'}
             )
 
 class TestAdvancedCGM:
@@ -87,20 +107,22 @@ class TestAdvancedCGM:
         measure = cgm.measure_glucose(patient_mock)
         assert measure is None
 
-    @patch('time.sleep')
+    @patch('time.sleep')  # Pour éviter d'attendre réellement
     def test_continuous_monitoring(self, mock_sleep, cgm, patient_mock):
         measurements = []
 
         def mock_measure(*args):
-            if len(measurements) >= 3:
-                return None
+            if len(measurements) >= 3:  # Arrêter après 3 mesures
+                cgm.sensor_monitor.expiration_time = datetime.now() - timedelta(days=1)  # Simuler capteur expiré
             glucose_value = 120 * random.uniform(0.9, 1.1)
             measurements.append(glucose_value)
             return glucose_value
 
-        with patch.object(cgm, 'measure_glucose', side_effect=mock_measure):
-            cgm.start_continuous_monitoring(patient_mock)
+        with patch.object(cgm.sensor_monitor, 'check_sensor_lifetime', side_effect=[True, True, True, False]):
+            with patch.object(cgm, 'measure_glucose', side_effect=mock_measure):
+                cgm.start_continuous_monitoring(patient_mock)
 
+        # Assertions
         assert len(measurements) == 3
         for measure in measurements:
             assert 108 <= measure <= 132  # ±10% de 120

@@ -122,6 +122,7 @@ services:
       KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_CREATE_TOPICS: "glucose_alerts:1:1,glucose_measurements:1:1,sensor_status:1:1"
     networks:
       - dexcom_network
 

@@ -9,7 +9,7 @@ import logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(message)s")
 
 # URL de l'API du capteur de glucose
-SENSOR_API_URL = "http://localhost:5000/glucose"
+SENSOR_API_URL = "http://localhost:6000/glucose"
 
 # Intervalle pour récupérer les données (en minutes)
 FETCH_INTERVAL = 5
