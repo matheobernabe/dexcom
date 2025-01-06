@@ -4,7 +4,7 @@ from datetime import datetime
 from DexcomPersonal.insulin_manager import InsulinManager
 from DexcomPersonal.data_manager import DataManager
 from DexcomPersonal.kafka_consumer import GlucoseConsumer
-from DexcomPersonal.alert_manager import AlertManager
+from DexcomPersonal.old.alert_manager import AlertManager
 
 class TestDexcomPersonalIntegration:
     @pytest.fixture

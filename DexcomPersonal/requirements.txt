@@ -1,6 +1,6 @@
 flask
 
-kafka-python
+confluent-kafka
 
 # Data processing & visualization
 pandas

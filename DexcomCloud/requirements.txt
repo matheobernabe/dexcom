@@ -6,3 +6,4 @@ eventlet
 pytest
 pytest-mock
 requests-mock
+python-dotenv

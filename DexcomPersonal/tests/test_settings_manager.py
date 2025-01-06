@@ -2,7 +2,7 @@ import pytest
 import json
 from datetime import time
 from unittest.mock import mock_open, patch
-from DexcomPersonal.user_settings import SettingsManager, UserSettings
+from DexcomPersonal.old.user_settings import SettingsManager, UserSettings
 
 class TestSettingsManager:
     @pytest.fixture

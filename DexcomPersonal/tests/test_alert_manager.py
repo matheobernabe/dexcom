@@ -1,6 +1,6 @@
 import pytest
 from datetime import datetime
-from alert_manager import AlertManager
+from DexcomPersonal.old.alert_manager import AlertManager
 
 class TestAlertManager:
     @pytest.fixture

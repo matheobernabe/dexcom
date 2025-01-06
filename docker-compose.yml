@@ -1,104 +1,6 @@
 version: '3.8'
 
 services:
-  glucose_sensor:
-    build: ./GlucoseSensor
-    container_name: glucose_sensor
-    ports:
-      - "6000:6000"
-    networks:
-      - dexcom_network
-
-  insulin_pump:
-    build: ./InsulinPump
-    container_name: insulin_pump
-    ports:
-      - "6001:6000"
-    networks:
-      - dexcom_network
-
-  dexcom_personal:
-    build: ./DexcomPersonal
-    container_name: dexcom_personal
-    ports:
-      - "6002:6000"
-    networks:
-      - dexcom_network
-
-  dexcom_cloud:
-    build: ./DexcomCloud
-    container_name: dexcom_cloud
-    ports:
-      - "6003:6000"
-    depends_on:
-      - dexcom_db
-      - kafka
-    networks:
-      - dexcom_network
-    environment:
-      DB_HOST: dexcom_db
-      DB_PORT: 6432
-      DB_NAME: dexcom
-      DB_USER: postgres
-      DB_PASSWORD: password
-      KAFKA_BROKER: kafka:9092
-
-  dexcom_follow:
-    build: ./DexcomFollow
-    container_name: dexcom_follow
-    ports:
-      - "6004:6000"
-    depends_on:
-      - kafka
-    networks:
-      - dexcom_network
-    environment:
-      KAFKA_BROKER: kafka:9092
-
-  dexcom_clarity:
-    build: ./DexcomClarity
-    container_name: dexcom_clarity
-    ports:
-      - "6005:6000"
-    depends_on:
-      - clarity_db
-      - kafka
-    networks:
-      - dexcom_network
-    environment:
-      DB_HOST: clarity_db
-      DB_PORT: 6432
-      DB_NAME: clarity
-      DB_USER: postgres
-      DB_PASSWORD: password
-      KAFKA_BROKER: kafka:9092
-
-  dexcom_db:
-    image: postgres:14
-    container_name: dexcom_db
-    restart: always
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: dexcom
-    volumes:
-      - dexcom_db_data:/var/lib/postgresql/data
-    networks:
-      - dexcom_network
-
-  clarity_db:
-    image: postgres:14
-    container_name: clarity_db
-    restart: always
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: clarity
-    volumes:
-      - clarity_db_data:/var/lib/postgresql/data
-    networks:
-      - dexcom_network
-
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
     container_name: zookeeper
@@ -120,15 +22,22 @@ services:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_CREATE_TOPICS: "glucose_alerts:1:1,glucose_measurements:1:1,sensor_status:1:1"
     networks:
       - dexcom_network
 
-volumes:
-  dexcom_db_data:
-  clarity_db_data:
+  dexcom_db:
+    image: postgres:14
+    container_name: dexcom_db
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: dexcom
+    networks:
+      - dexcom_network
 
 networks:
   dexcom_network:
