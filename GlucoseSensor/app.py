@@ -13,7 +13,7 @@ SEND_INTERVAL = 60  # Intervalle en secondes entre chaque envoi de données
 # Simulation de données de glycémie
 def generate_glucose():
     """Génère un taux de glucose simulé entre 70 et 150 mg/dL."""
-    return round(random.uniform(70, 150), 1)
+    return round(random.uniform(60, 190), 1)
 
 def send_to_dexcom_personal(glucose_level):
     """Envoie les données au serveur Dexcom Personal."""
