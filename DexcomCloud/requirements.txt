@@ -7,3 +7,5 @@ pytest
 pytest-mock
 requests-mock
 python-dotenv
+psycopg2-binary
+psycopg2

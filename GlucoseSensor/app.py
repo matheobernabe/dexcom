@@ -8,7 +8,7 @@ app = Flask(__name__)
 
 # Configuration
 DEXCOM_PERSONAL_URL = "http://localhost:6002/api/glucose"  # Endpoint de Dexcom Personal
-SEND_INTERVAL = 60  # Intervalle en secondes entre chaque envoi de données
+SEND_INTERVAL = 30  # Intervalle en secondes entre chaque envoi de données
 
 # Simulation de données de glycémie
 def generate_glucose():

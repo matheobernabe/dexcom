@@ -1,3 +1,5 @@
+from decimal import Decimal
+from datetime import datetime
 from confluent_kafka import Producer
 import json
 
@@ -15,13 +17,25 @@ class KafkaProducer:
         else:
             print(f"Message delivered to {msg.topic()} [{msg.partition()}]")
 
+    def serialize_data(self, data):
+        """Convertit les objets non JSON-sérialisables en types compatibles."""
+        return json.dumps(data, default=self.json_serializer)
+
+    def json_serializer(self, obj):
+        """Sérialiseur personnalisé pour les objets non standard."""
+        if isinstance(obj, Decimal):
+            return float(obj)  # Convertir Decimal en float
+        if isinstance(obj, datetime):
+            return obj.isoformat()  # Convertir datetime en format ISO 8601
+        raise TypeError(f"Object of type {type(obj).__name__} is not JSON serializable")
+
     def send_validated_data(self, data):
         """Envoie les données validées au topic Kafka."""
         try:
             self.producer.produce(
                 self.VALIDATED_TOPIC,
                 key=str(data.get('sensor_id', 'unknown')),
-                value=json.dumps(data),
+                value=self.serialize_data(data),
                 callback=self.delivery_report
             )
             self.producer.flush()
@@ -34,7 +48,7 @@ class KafkaProducer:
             self.producer.produce(
                 self.ALERTS_TOPIC,
                 key=str(alert.get('type', 'unknown')),
-                value=json.dumps(alert),
+                value=self.serialize_data(alert),
                 callback=self.delivery_report
             )
             self.producer.flush()
